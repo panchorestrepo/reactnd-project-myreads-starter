@@ -12,6 +12,8 @@ class BooksApp extends React.Component {
      */
     showSearchPage: true
   }
+  componentDidMount() {
+  }
 
   render() {
     return (
