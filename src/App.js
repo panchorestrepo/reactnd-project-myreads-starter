@@ -27,10 +27,12 @@ class BooksApp extends React.Component {
   }
   changeShelf(book, shelf) {
     const currShelf = book.shelf;
-    BooksAPI.update(book, shelf),then( () => this.setState({
-        [currShelf] : this.state[currShelf].filter( (b) => b.id !== book.id),
-        [shelf]     : this.state[shelf].concat([book]);
-    })
+    if (shelf !== currShelf) {
+      BooksAPI.update(book, shelf),then( () => this.setState({
+          [currShelf] : this.state[currShelf].filter( (b) => b.id !== book.id),
+          [shelf]     : this.state[shelf].concat([book]);
+      })
+    }
   }
   render() {
     return (
