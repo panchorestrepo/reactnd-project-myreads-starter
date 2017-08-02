@@ -11,27 +11,27 @@ class BooksApp extends React.Component {
      * pages, as well as provide a good URL they can bookmark and share.
      */
     showSearchPage: true,
-    bookShelf : {
-      wantToRead :       [],
-      currentlyReading : [],
-      read :             []
-    }
+    
+    wantToRead :       [],
+    currentlyReading : [],
+    read :             []
+   
   }
  // shelf: <String> contains one of ["wantToRead", "currentlyReading", "read"]
   componentDidMount() {
     BooksAPI.getAll()).then((books) => this.setState({
-      bookShelf.currentlyReading: books.filter((b) => b.shelf === 'currentlyReading'),
-      bookShelf.read: books.filter((b) => b.shelf === 'read'),
-      bookShelf.wantToReadd : books.filter((b) => b.shelf === 'wantToReadd')
+      currentlyReading: books.filter((b) => b.shelf === 'currentlyReading'),
+      read: books.filter((b) => b.shelf === 'read'),
+      wantToReadd : books.filter((b) => b.shelf === 'wantToReadd')
     }))
   }
   changeShelf(book, shelf) {
     const currShelf = book.shelf;
-    BooksAPI.update(book, shelf),then( () => {
-      bookShelf : {
-        wantToRead : bookShelf[currShelf].filter( (b) => b.id !== book.id),
-      }
-    }
+    BooksAPI.update(book, shelf),then( () => this.setState({
+
+        [currShelf] : this.state[currShelf].filter( (b) => b.id !== book.id),
+        [shelf]     : this.state[shelf].concat([book]);
+    })
   }
   render() {
     return (
