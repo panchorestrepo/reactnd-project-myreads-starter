@@ -21,14 +21,13 @@ class BooksApp extends React.Component {
   componentDidMount() {
     BooksAPI.getAll()).then((books) => this.setState({
       currentlyReading: books.filter((b) => b.shelf === 'currentlyReading'),
-      read: books.filter((b) => b.shelf === 'read'),
-      wantToReadd : books.filter((b) => b.shelf === 'wantToReadd')
+      read            : books.filter((b) => b.shelf === 'read'),
+      wantToReadd     : books.filter((b) => b.shelf === 'wantToReadd')
     }))
   }
   changeShelf(book, shelf) {
     const currShelf = book.shelf;
     BooksAPI.update(book, shelf),then( () => this.setState({
-
         [currShelf] : this.state[currShelf].filter( (b) => b.id !== book.id),
         [shelf]     : this.state[shelf].concat([book]);
     })
@@ -63,9 +62,9 @@ class BooksApp extends React.Component {
               <h1>MyReads</h1>
             </div>
             <div className="list-books-content">
-                <BookShelf books={this.state.booksCurrRead} shelfTitle="Currently Reading" changeShelf={this.changeShelf}/>
-                <BookShelf books={this.state.booksRead} shelfTitle="Read" changeShelf={this.changeShelf}/>
-                <BookShelf books={this.state.booksWantRead} shelfTitle="Want to Read" changeShelf={this.changeShelf}/>
+                <BookShelf books={this.state.currentlyReading} shelfTitle="Currently Reading" changeShelf={this.changeShelf}/>
+                <BookShelf books={this.stater.read} shelfTitle="Read" changeShelf={this.changeShelf}/>
+                <BookShelf books={this.state.wantToRead} shelfTitle="Want to Read" changeShelf={this.changeShelf}/>
             </div>
             <div className="open-search">
               <a onClick={() => this.setState({ showSearchPage: true })}>Add a book</a>
