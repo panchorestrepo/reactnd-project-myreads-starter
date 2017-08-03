@@ -1,18 +1,20 @@
 import React, { Component } from 'react';
 
 class ChangeShelf extends Component {
-  const { book, changeShelf } = this.props;
+  
   render() {
+    const { book, changeShelf } = this.props;
     return (
             <div className="book-shelf-changer">
-              <select>
+              <select onChange={event => changeShelf(book,event.target.value)} value={ book.shelf}>
                 <option value="none" disabled>Move to...</option>
-                <option value="currentlyReading" onclick={changeShelf(book,"currentlyReading")}>Currently Reading</option>
-                <option value="wantToRead" onclick={changeShelf(book,"wantToRead")}>Want to Read</option>
-                <option value="read" onclick={changeShelf(book,"read")}>Read</option>
-                <option value="none">None</option>
+                <option value="currentlyReading">Currently Reading</option>
+                <option value="wantToRead">Want to Read</option>
+                <option value="read">Read</option>
+                <option value="none" selected>None</option>
               </select>
             </div>
           )
   }
 }
+export default ChangeShelf;
