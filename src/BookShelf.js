@@ -1,6 +1,6 @@
 import React, { Component } from 'react';
 
-import ChangeShelf from './ChangeShelf';
+import Book from './Book';
 
 class BookShelf extends Component {
 
@@ -13,17 +13,8 @@ class BookShelf extends Component {
         <ol className="books-grid">
           { books.map( (book) => {
               return (
-                <li>
-                  <div className="book">
-                    <div className="book-top">
-                      <div className="book-cover" style={{ width: 128, height: 193, backgroundImage: `url(${book.imageLinks.thumbnail})` }}></div>
-                      <ChangeShelf book={book} changeShelf={changeShelf}/>
-                    </div>
-                    <div className="book-title">{book.title}</div>
-                    <div className="book-authors">{book.authors}</div>
-                  </div>
-                </li>
-              )
+                <Book book={book} key={book.id} changeShelf={changeShelf}/>
+              );
             })
           }
         </ol>

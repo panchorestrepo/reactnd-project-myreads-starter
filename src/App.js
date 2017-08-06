@@ -2,6 +2,7 @@ import React from 'react'
 import * as BooksAPI from './BooksAPI'
 import './App.css'
 import BookShelf from './BookShelf';
+import SearchShelf from './SearchShelf';
 
 class BooksApp extends React.Component {
   state = {
@@ -23,12 +24,12 @@ class BooksApp extends React.Component {
     BooksAPI.getAll().then((books) => this.setState({
       currentlyReading: books.filter((b) => b.shelf === 'currentlyReading'),
       read            : books.filter((b) => b.shelf === 'read'),
-      wantToReadd     : books.filter((b) => b.shelf === 'wantToReadd')
+      wantToRead     : books.filter((b) => b.shelf === 'wantToRead')
     }))
     console.log(this.state);
   }
   onSearchBooks(query) {
-    BooksAPI.search('Art', 20).then(
+    BooksAPI.search('Android', 20).then(
       (books) => this.setState(
         {
           searchBooks : books
@@ -37,16 +38,17 @@ class BooksApp extends React.Component {
     )
   }
   changeShelf(book, shelf) {
-    console.log("changeShelf",book,shelf);
+    console.log("changeShelf",book.id,shelf);
     const currShelf = book.shelf;
     console.log("currShelf",currShelf);
     if (shelf !== currShelf) {
-      BooksAPI.update(book, shelf).then( () => 
+      BooksAPI.update(book, shelf).then( () => { 
         this.setState({
             [currShelf] : this.state[currShelf].filter( (b) => b.id !== book.id),
-            [shelf]     : this.state[shelf].concat(book)
-        }));
-        book.shelf = shelf;
+            [shelf]     : shelf === 'none' ?  this.state[shelf] : this.state[shelf].concat(book)
+        })
+        book.shelf = shelf;        
+      });
     }
   }
   render() {
@@ -65,13 +67,12 @@ class BooksApp extends React.Component {
                   However, remember that the BooksAPI.search method DOES search by title or author. So, don't worry if
                   you don't find a specific author or title. Every search is limited by search terms.
                 */}
-                <BookShelf books={this.state.searchBooks} shelfTitle="Books to Select" changeShelf={this.changeShelf.bind(this)}/>
-                <input type="text" onChange={this.onSearchBooks.bind(this)} placeholder="Search by title or author"/>
-                
+
               </div>
             </div>
             <div className="search-books-results">
-              <ol className="books-grid"></ol>
+                <input type="text" onChange={this.onSearchBooks.bind(this)} placeholder="Search by title or author"/>
+                <SearchShelf books={this.state.searchBooks} changeShelf={this.changeShelf.bind(this)}/>
             </div>
           </div>
         ) : (
