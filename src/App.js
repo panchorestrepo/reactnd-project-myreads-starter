@@ -1,8 +1,8 @@
 import React from 'react'
 import * as BooksAPI from './BooksAPI'
 import './App.css'
-import BookShelf from './BookShelf';
 import SearchShelf from './SearchShelf';
+import MyReads from './MyReads';
 
 class BooksApp extends React.Component {
   state = {
@@ -12,6 +12,7 @@ class BooksApp extends React.Component {
      * users can use the browser's back and forward buttons to navigate between
      * pages, as well as provide a good URL they can bookmark and share.
      */
+    query : "",
     showSearchPage: false,
     searchBooks : [],
     wantToRead :       [],
@@ -20,36 +21,56 @@ class BooksApp extends React.Component {
    
   }
  // shelf: <String> contains one of ["wantToRead", "currentlyReading", "read"]
-  componentDidMount() {
-    BooksAPI.getAll().then((books) => this.setState({
-      currentlyReading: books.filter((b) => b.shelf === 'currentlyReading'),
-      read            : books.filter((b) => b.shelf === 'read'),
-      wantToRead     : books.filter((b) => b.shelf === 'wantToRead')
-    }))
-    console.log(this.state);
-  }
-  onSearchBooks(query) {
-    BooksAPI.search('Android', 20).then(
-      (books) => this.setState(
-        {
-          searchBooks : books
-        }
-      )
-    )
-  }
-  changeShelf(book, shelf) {
-    console.log("changeShelf",book.id,shelf);
-    const currShelf = book.shelf;
-    console.log("currShelf",currShelf);
-    if (shelf !== currShelf) {
-      BooksAPI.update(book, shelf).then( () => { 
-        this.setState({
-            [currShelf] : this.state[currShelf].filter( (b) => b.id !== book.id),
-            [shelf]     : shelf === 'none' ?  this.state[shelf] : this.state[shelf].concat(book)
-        })
-        book.shelf = shelf;        
-      });
+    componentDidMount() {
+      BooksAPI.getAll().then((books) => this.setState({
+        currentlyReading: books.filter((b) => b.shelf === 'currentlyReading'),
+        read            : books.filter((b) => b.shelf === 'read'),
+        wantToRead     : books.filter((b) => b.shelf === 'wantToRead')
+      }))
+      console.log(this.state);
     }
+    
+    onSearchBooks(event) {
+      const query = event.target.value;
+      this.setState({searchBooks : [],query : query});
+      let nBooks = [];
+      BooksAPI.search(query, 20).then(
+        (books) => {
+            books.forEach( (book) => {
+            console.log("search:",book.id)
+            BooksAPI.get(book.id).then((b) => {
+              console.log('found:',b.id,b.shelf)
+              nBooks.push(b)
+              if (nBooks.length === books.length)
+                this.setState({ searchBooks : nBooks
+                });
+              })
+        })
+    });
+  }
+  
+  changeShelf(book, toShelf) {
+    const fromShelf = book.shelf;
+    console.log("fromShelf",fromShelf);
+    console.log("toShelf",book.id,toShelf);
+
+    if (toShelf !== fromShelf) {
+      BooksAPI.update(book, toShelf).then( () => {
+        book.shelf = toShelf;
+        this.setState({
+            searchBooks : this.state.searchBooks.map(
+              (b) => {
+                if (b.id === book.id)
+                  return {...b,shelf : toShelf}
+                else
+                  return b;
+              }
+            ),            
+            [fromShelf] : fromShelf === 'none' ? this.state[fromShelf] : this.state[fromShelf].filter( (b) => b.id !== book.id),
+            [toShelf]   : toShelf   === 'none' ? this.state[toShelf]   : this.state[toShelf].concat(book)
+          });
+        });
+     }
   }
   render() {
     return (
@@ -59,32 +80,16 @@ class BooksApp extends React.Component {
             <div className="search-books-bar">
               <a className="close-search" onClick={() => this.setState({ showSearchPage: false })}>Close</a>
               <div className="search-books-input-wrapper">
-                {/* 
-                  NOTES: The search from BooksAPI is limited to a particular set of search terms.
-                  You can find these search terms here:
-                  https://github.com/udacity/reactnd-project-myreads-starter/blob/master/SEARCH_TERMS.md
-                  
-                  However, remember that the BooksAPI.search method DOES search by title or author. So, don't worry if
-                  you don't find a specific author or title. Every search is limited by search terms.
-                */}
-
+                <input type="text" value={this.state.query} onChange={this.onSearchBooks.bind(this)} placeholder="Search by title or author"/>
               </div>
             </div>
             <div className="search-books-results">
-                <input type="text" onChange={this.onSearchBooks.bind(this)} placeholder="Search by title or author"/>
                 <SearchShelf books={this.state.searchBooks} changeShelf={this.changeShelf.bind(this)}/>
             </div>
           </div>
         ) : (
-          <div className="list-books">
-            <div className="list-books-title">
-              <h1>MyReads</h1>
-            </div>
-            <div className="list-books-content">
-                <BookShelf books={this.state.currentlyReading} shelfTitle="Currently Reading" changeShelf={this.changeShelf.bind(this)}/>
-                <BookShelf books={this.state.read} shelfTitle="Read" changeShelf={this.changeShelf.bind(this)}/>
-                <BookShelf books={this.state.wantToRead} shelfTitle="Want to Read" changeShelf={this.changeShelf.bind(this)}/>
-            </div>
+          <div>
+            <MyReads currentlyReading={this.state.currentlyReading} read={this.state.read} wantToRead={this.state.wantToRead} changeShelf={this.changeShelf.bind(this)} />
             <div className="open-search">
               <a onClick={() => this.setState({ showSearchPage: true })}>Add a book</a>
             </div>
