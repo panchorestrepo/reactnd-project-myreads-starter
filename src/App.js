@@ -3,6 +3,7 @@ import * as BooksAPI from './BooksAPI'
 import './App.css'
 import SearchShelf from './SearchShelf';
 import MyReads from './MyReads';
+import { Route, Link }  from 'react-router-dom';
 
 class BooksApp extends React.Component {
   state = {
@@ -29,7 +30,7 @@ class BooksApp extends React.Component {
       }))
       console.log(this.state);
     }
-    
+
     onSearchBooks(event) {
       const query = event.target.value;
       this.setState({searchBooks : [],query : query});
@@ -75,10 +76,10 @@ class BooksApp extends React.Component {
   render() {
     return (
       <div className="app">
-        {this.state.showSearchPage ? (
-          <div className="search-books">
+        <Route exact path="/search" render={ () =>
+         (<div className="search-books">
             <div className="search-books-bar">
-              <a className="close-search" onClick={() => this.setState({ showSearchPage: false })}>Close</a>
+              <Link className="close-search" to="/" >Close</Link>
               <div className="search-books-input-wrapper">
                 <input type="text" value={this.state.query} onChange={this.onSearchBooks.bind(this)} placeholder="Search by title or author"/>
               </div>
@@ -87,14 +88,11 @@ class BooksApp extends React.Component {
                 <SearchShelf books={this.state.searchBooks} changeShelf={this.changeShelf.bind(this)}/>
             </div>
           </div>
-        ) : (
-          <div>
-            <MyReads currentlyReading={this.state.currentlyReading} read={this.state.read} wantToRead={this.state.wantToRead} changeShelf={this.changeShelf.bind(this)} />
-            <div className="open-search">
-              <a onClick={() => this.setState({ showSearchPage: true })}>Add a book</a>
-            </div>
-          </div>
-        )}
+        )}/>
+        <Route exact path="/" render={ () => (
+          <MyReads currentlyReading={this.state.currentlyReading} read={this.state.read} wantToRead={this.state.wantToRead} changeShelf={this.changeShelf.bind(this)} />
+        )}/>
+
       </div>
     )
   }
