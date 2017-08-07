@@ -5,32 +5,31 @@ import SearchShelf from './SearchShelf';
 import MyReads from './MyReads';
 import { Route, Link }  from 'react-router-dom';
 
-class BooksApp extends React.Component {
-  state = {
-    query : "",
-    searchBooks : [],
-    wantToRead :       [],
-    currentlyReading : [],
-    read :             []
-   
+  class BooksApp extends React.Component {
+    state = {
+      query : "",
+      searchBooks : [],
+      wantToRead :       [],
+      currentlyReading : [],
+      read :             []
+    
   }
- // shelf: <String> contains one of ["wantToRead", "currentlyReading", "read"]
-    componentDidMount() {
-      BooksAPI.getAll().then((books) => this.setState({
-        currentlyReading: books.filter((b) => b.shelf === 'currentlyReading'),
-        read            : books.filter((b) => b.shelf === 'read'),
-        wantToRead     : books.filter((b) => b.shelf === 'wantToRead')
-      }))
-      console.log(this.state);
-    }
+  componentDidMount() {
+    BooksAPI.getAll().then((books) => this.setState({
+      currentlyReading: books.filter((b) => b.shelf === 'currentlyReading'),
+      read            : books.filter((b) => b.shelf === 'read'),
+      wantToRead     : books.filter((b) => b.shelf === 'wantToRead')
+    }))
+    console.log(this.state);
+  }
 
-    onSearchBooks(event) {
-      const query = event.target.value;
-      this.setState({searchBooks : [],query : query});
-      let nBooks = [];
-      BooksAPI.search(query, 20).then(
-        (books) => {
-            books.forEach( (book) => {
+  onSearchBooks(event) {
+    const query = event.target.value;
+    this.setState({searchBooks : [],query : query});
+    let nBooks = [];
+    BooksAPI.search(query, 20).then(
+      (books) => {
+          books.forEach( (book) => {
             console.log("search:",book.id)
             BooksAPI.get(book.id).then((b) => {
               console.log('found:',b.id,b.shelf)
@@ -39,8 +38,8 @@ class BooksApp extends React.Component {
                 this.setState({ searchBooks : nBooks
                 });
               })
-        })
-    });
+          })
+      });
   }
   
   changeShelf(book, toShelf) {
@@ -66,6 +65,7 @@ class BooksApp extends React.Component {
         });
      }
   }
+  
   render() {
     return (
       <div className="app">
